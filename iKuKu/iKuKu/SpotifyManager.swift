@@ -27,6 +27,10 @@ class SpotifyManager: ObservableObject {
     )
     private var cancellables: Set<AnyCancellable> = []
 
+    var isCodeValid: Bool {
+        shortCode.count == 6 ? false : true
+    }
+
     /// Generate URL
     func authorize() {
         // Open Spotify authorization URL
@@ -122,21 +126,6 @@ class SpotifyManager: ObservableObject {
         task.resume()
     }
 
-
-
-//    func handleAuthCallback(url: URL) {
-//        spotify.authorizationManager.requestAccessAndRefreshTokens(redirectURIWithQuery: url)
-//            .sink(receiveCompletion: { completion in
-//                if case .failure(let error) = completion {
-//                    print("Error requesting tokens: \(error)")
-//                }
-//            }, receiveValue: { _ in
-//                self.isAuthenticated = true
-//                self.fetchUserProfile()
-//            })
-//            .store(in: &cancellables)
-//    }
-
     func fetchUserProfile() {
         spotify.currentUserProfile()
             .sink(receiveCompletion: { completion in
@@ -150,5 +139,4 @@ class SpotifyManager: ObservableObject {
             })
             .store(in: &cancellables)
     }
-
 }

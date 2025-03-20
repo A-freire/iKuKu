@@ -9,7 +9,7 @@ import SwiftUI
 import CoreImage.CIFilterBuiltins
 
 struct QRCodeGeneratorView: View {
-    @State var text: String = "https://apple.com"
+    @Binding var text: String
     @State private var qrImage: UIImage?
 
     let context = CIContext()
@@ -29,9 +29,9 @@ struct QRCodeGeneratorView: View {
                     .foregroundColor(.red)
             }
         }
-        .onAppear {
+        .onChange(of: text, { _, _ in
             generateQRCode(from: text)
-        }
+        })
     }
 
     // Génère un QR Code à partir d'une chaîne de caractères
