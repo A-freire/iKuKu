@@ -15,8 +15,8 @@ class SpotifyManager: ObservableObject {
     @Published var url: String = ""
     @Published var shortCode: String = ""
 
-    private let clientId: String = "80cfbeb8de764c488707ec844293070a"
-    private let clientSecret: String = "04852670d5b34ace868d548c7a3b9dcd"
+    private let clientId: String? = Bundle.main.object(forInfoDictionaryKey: "CLIENT_ID") as? String
+    private let clientSecret: String? = Bundle.main.object(forInfoDictionaryKey: "CLIENT_SECRET") as? String
     private let codeVerifier: String = PKCEHelper.generateCodeVerifier()
     private let redirectURI: String = "http://192.168.1.14:8080"
     private var spotify = SpotifyAPI(
@@ -33,6 +33,8 @@ class SpotifyManager: ObservableObject {
 
     /// Generate URL
     func authorize() {
+        print("CLIENT_ID: \(clientId ?? "")")
+        print("CLIENT_SECRET: \(clientSecret ?? "")")
         // Open Spotify authorization URL
         guard let url = spotify.authorizationManager.makeAuthorizationURL(redirectURI: URL(string: redirectURI)!, showDialog: true, scopes: [
             .playlistModifyPrivate,
@@ -77,8 +79,8 @@ class SpotifyManager: ObservableObject {
             "grant_type": "authorization_code",
             "code": code,
             "redirect_uri": redirectURI,
-            "client_id": clientId,
-            "client_secret": clientSecret,
+            "client_id": clientId ?? "",
+            "client_secret": clientSecret ?? "",
             "code_verifier": codeVerifier
         ]
 
@@ -109,8 +111,8 @@ class SpotifyManager: ObservableObject {
 
                 self.spotify = SpotifyAPI(
                     authorizationManager: AuthorizationCodeFlowManager(
-                        clientId: self.clientId,
-                        clientSecret: self.clientSecret,
+                        clientId: self.clientId ?? "",
+                        clientSecret: self.clientSecret ?? "",
                         accessToken: json.accessToken,
                         expirationDate: Date().addingTimeInterval(TimeInterval(json.expiresIn)),
                         refreshToken: json.refreshToken,

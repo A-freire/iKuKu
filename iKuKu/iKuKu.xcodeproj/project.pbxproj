@@ -14,9 +14,22 @@
 		FCC033792D414C9B008E7E91 /* iKuKu.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = iKuKu.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		FC8F586C2D8C6B6F00508DFB /* Exceptions for "iKuKu" folder in "iKuKu" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = FCC033782D414C9B008E7E91 /* iKuKu */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		FCC0337B2D414C9B008E7E91 /* iKuKu */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				FC8F586C2D8C6B6F00508DFB /* Exceptions for "iKuKu" folder in "iKuKu" target */,
+			);
 			path = iKuKu;
 			sourceTree = "<group>";
 		};
@@ -255,6 +268,8 @@
 		};
 		FCC033882D414C9C008E7E91 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = FCC0337B2D414C9B008E7E91 /* iKuKu */;
+			baseConfigurationReferenceRelativePath = Secrets.xcconfig;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -263,7 +278,8 @@
 				DEVELOPMENT_ASSET_PATHS = "\"iKuKu/Preview Content\"";
 				DEVELOPMENT_TEAM = 96388BF5TL;
 				ENABLE_PREVIEWS = YES;
-				GENERATE_INFOPLIST_FILE = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = /Users/bexas/Repo/iKuKu/iKuKu/iKuKu/Info.plist;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UIUserInterfaceStyle = Automatic;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -283,6 +299,8 @@
 		};
 		FCC033892D414C9C008E7E91 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = FCC0337B2D414C9B008E7E91 /* iKuKu */;
+			baseConfigurationReferenceRelativePath = Secrets.xcconfig;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -291,7 +309,8 @@
 				DEVELOPMENT_ASSET_PATHS = "\"iKuKu/Preview Content\"";
 				DEVELOPMENT_TEAM = 96388BF5TL;
 				ENABLE_PREVIEWS = YES;
-				GENERATE_INFOPLIST_FILE = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = /Users/bexas/Repo/iKuKu/iKuKu/iKuKu/Info.plist;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UIUserInterfaceStyle = Automatic;
 				LD_RUNPATH_SEARCH_PATHS = (

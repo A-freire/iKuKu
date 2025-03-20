@@ -60,3 +60,9 @@ fastlane/report.xml
 fastlane/Preview.html
 fastlane/screenshots/**/*.png
 fastlane/test_output
+
+iKuKu/iKuKu/Secrets.xcconfig
+
+iKuKu/.DS_Store
+
+iKuKu/iKuKu/.DS_Store
