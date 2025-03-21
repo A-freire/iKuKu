@@ -21,8 +21,8 @@ class SpotifyManager: ObservableObject {
     private let redirectURI: String = "http://192.168.1.14:8080"
     private var spotify = SpotifyAPI(
         authorizationManager: AuthorizationCodeFlowManager(
-            clientId: "80cfbeb8de764c488707ec844293070a",
-            clientSecret: "04852670d5b34ace868d548c7a3b9dcd"
+            clientId: Bundle.main.object(forInfoDictionaryKey: "CLIENT_ID") as? String ?? "",
+            clientSecret: Bundle.main.object(forInfoDictionaryKey: "CLIENT_SECRET") as? String ?? ""
         )
     )
     private var cancellables: Set<AnyCancellable> = []
