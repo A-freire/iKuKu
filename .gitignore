@@ -66,3 +66,5 @@ iKuKu/iKuKu/Secrets.xcconfig
 iKuKu/.DS_Store
 
 iKuKu/iKuKu/.DS_Store
+
+*.xcconfig
