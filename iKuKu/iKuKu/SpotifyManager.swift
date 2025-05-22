@@ -7,6 +7,7 @@
 
 import Foundation
 import SpotifyWebAPI
+import SpotifyWebAPI
 import Combine
 
 class SpotifyManager: ObservableObject {
@@ -33,14 +34,23 @@ class SpotifyManager: ObservableObject {
 
     /// Generate URL
     func authorize() {
-        print("CLIENT_ID: \(clientId ?? "")")
-        print("CLIENT_SECRET: \(clientSecret ?? "")")
+        if let manager = TokenStore.loadManager() {
+            self.spotify = SpotifyAPI(authorizationManager: manager)
+            DispatchQueue.main.async {
+                self.isAuthenticated = true
+                self.fetchUserProfile()
+            }
+            return
+        }
         // Open Spotify authorization URL
         guard let url = spotify.authorizationManager.makeAuthorizationURL(redirectURI: URL(string: redirectURI)!, showDialog: true, scopes: [
             .playlistModifyPrivate,
             .userModifyPlaybackState,
             .playlistReadCollaborative,
-            .userReadPlaybackPosition
+            .userReadPlaybackPosition,
+            .userReadCurrentlyPlaying,
+            .userReadPlaybackState,
+            .streaming,
         ]) else { return }
 
         self.url = url.absoluteString
@@ -101,27 +111,29 @@ class SpotifyManager: ObservableObject {
                 return
             }
 
-            if let response = response as? HTTPURLResponse {
-                print("HTTP Status: \(response.statusCode)")
-                print("Content-Type: \(response.allHeaderFields["Content-Type"] ?? "inconnu")")
-                print("Réponse brute:", String(data: data, encoding: .utf8) ?? "Impossible de décoder la réponse")
-            }
+            //            if let response = response as? HTTPURLResponse {
+            //                print("HTTP Status: \(response.statusCode)")
+            //                print("Content-Type: \(response.allHeaderFields["Content-Type"] ?? "inconnu")")
+            //                print("Réponse brute:", String(data: data, encoding: .utf8) ?? "Impossible de décoder la réponse")
+            //            }
             if let json = try? JSONDecoder().decode(SpotifyToken.self, from: data) {
                 print(json)
 
-                self.spotify = SpotifyAPI(
-                    authorizationManager: AuthorizationCodeFlowManager(
-                        clientId: self.clientId ?? "",
-                        clientSecret: self.clientSecret ?? "",
-                        accessToken: json.accessToken,
-                        expirationDate: Date().addingTimeInterval(TimeInterval(json.expiresIn)),
-                        refreshToken: json.refreshToken,
-                        scopes: Set(json.scope.split(separator: " ").compactMap { Scope(rawValue: String($0)) })
-                    )
+                let authManager = AuthorizationCodeFlowManager(
+                    clientId: self.clientId ?? "",
+                    clientSecret: self.clientSecret ?? "",
+                    accessToken: json.accessToken,
+                    expirationDate: Date().addingTimeInterval(TimeInterval(json.expiresIn)),
+                    refreshToken: json.refreshToken,
+                    scopes: Set(json.scope.split(separator: " ").compactMap { Scope(rawValue: String($0)) })
                 )
+
+                self.spotify = SpotifyAPI(authorizationManager: authManager)
+
                 DispatchQueue.main.async {
                     self.isAuthenticated = true
                     self.fetchUserProfile()
+                    TokenStore.saveManager(authManager)
                 }
             }
         }
@@ -137,6 +149,87 @@ class SpotifyManager: ObservableObject {
             }, receiveValue: { profile in
                 DispatchQueue.main.async {
                     self.userProfile = profile
+                    self.getCurrentPlaybackInfo()
+                }
+            })
+            .store(in: &cancellables)
+    }
+}
+
+extension SpotifyManager {
+    func getCurrentPlaybackInfo() {
+        spotify.currentPlayback()
+            .sink(receiveCompletion: { completion in
+                if case .failure(let error) = completion {
+                    print("Erreur currentPlayback : \(error)")
+                }
+            }, receiveValue: { playback in
+                guard let item = playback?.item else {
+                    print("Aucune lecture en cours")
+                    return
+                }
+
+                switch item {
+                case .track(let track):
+                    let artist = track.artists?.first?.name ?? "Inconnu"
+                    let name = track.name
+                    let isPlaying = playback?.isPlaying ?? false
+                    print("🎧 \(name) - \(artist) | En cours : \(isPlaying ? "✅" : "⏸")")
+                default:
+                    print("Contenu non musical")
+                }
+            })
+            .store(in: &cancellables)
+    }
+
+    func getNextTrack() {
+        spotify.queue()
+            .sink(receiveCompletion: { completion in
+                if case .failure(let error) = completion {
+                    print("Erreur lors de la récupération de la file d’attente : \(error)")
+                }
+            }, receiveValue: { queue in
+                if let nextTrack = queue.queue.first {
+                    let name = nextTrack.name
+                    print("⏭ Prochaine musique : \(name ?? "")")
+                    //                    DispatchQueue.main.async {
+                    //                        self.nextTrackInfo = "\(name)"
+                    //                    }
+                } else {
+                    print("🎶 Aucun morceau dans la file d’attente")
+                    //                    DispatchQueue.main.async {
+                    //                        self.nextTrackInfo = "Aucune musique dans la file d’attente"
+                    //                    }
+                }
+            })
+            .store(in: &cancellables)
+    }
+
+    func getTrack(uri: String) {
+        spotify.track(uri)
+            .sink(receiveCompletion: { completion in
+                if case .failure(let error) = completion {
+                    print("Erreur récupération track : \(error)")
+                }
+            }, receiveValue: { track in
+                print("🎧 Track retrouvé : \(track.name) - \(track.artists?.first?.name ?? "Inconnu")")
+            })
+            .store(in: &cancellables)
+    }
+
+    func getTracks(from uris: [String]) {
+        spotify.tracks(uris)
+            .sink(receiveCompletion: { completion in
+                if case .failure(let error) = completion {
+                    print("❌ Erreur récupération de plusieurs tracks : \(error)")
+                }
+            }, receiveValue: { tracksPage in
+                for track in tracksPage {
+                    if let track = track {
+                        let name = track.name
+                        let artist = track.artists?.first?.name ?? "Inconnu"
+                        print("🎧 \(name) - \(artist)")
+                    }
                 }
             })
             .store(in: &cancellables)
